@@ -1,8 +1,7 @@
 # coding: utf-8
 
 import sys
-dataDir = '../../VQA'
-sys.path.insert(0, '%s/PythonHelperTools/vqaTools' %(dataDir))
+sys.path.insert(0, 'src/lib/VQA/PythonHelperTools/vqaTools')
 from vqa import VQA
 from vqaEvaluation.vqaEval import VQAEval
 import matplotlib.pyplot as plt
@@ -10,20 +9,27 @@ import skimage.io as io
 import json
 import random
 import os
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--dirvqa', type=str, default='/local/cadene/data/vqa')
+parser.add_argument('--direpoch',type=str, default='logs/16_12_13_17:43:40/epoch,1')
+parser.add_argument('--subtype', type=str, default='val2014')
+args = parser.parse_args()
 
 # set up file names and paths
 taskType    ='OpenEnded'
 dataType    ='mscoco'  # 'mscoco' for real and 'abstract_v002' for abstract
-dataSubType ='train2014'
-annFile     ='%s/Annotations/%s_%s_annotations.json'%(dataDir, dataType, dataSubType)
-quesFile    ='%s/Questions/%s_%s_%s_questions.json'%(dataDir, taskType, dataType, dataSubType)
-imgDir      ='%s/Images/%s/%s/' %(dataDir, dataType, dataSubType)
-resultType  ='fake'
+dataSubType = args.subtype
+annFile     ='%s/raw/annotations/%s_%s_annotations.json'%(args.dirvqa, dataType, dataSubType)
+quesFile    ='%s/raw/annotations/%s_%s_%s_questions.json'%(args.dirvqa, taskType, dataType, dataSubType)
+#imgDir      ='/local/cadene/data/raw/%s/%s/' %(dataType, dataSubType)
+	
 fileTypes   = ['results', 'accuracy', 'evalQA', 'evalQuesType', 'evalAnsType'] 
 
 # An example result json file has been provided in './Results' folder.  
 
-[resFile, accuracyFile, evalQAFile, evalQuesTypeFile, evalAnsTypeFile] = ['%s/Results/%s_%s_%s_%s_%s.json'%(dataDir, taskType, dataType, dataSubType, \
+[resFile, accuracyFile, evalQAFile, evalQuesTypeFile, evalAnsTypeFile] = ['%s/%s_%s_%s_%s_%s.json'%(args.direpoch, taskType, dataType, dataSubType, \
 resultType, fileType) for fileType in fileTypes]  
 
 # create vqa object and vqaRes object
@@ -38,7 +44,11 @@ vqaEval = VQAEval(vqa, vqaRes, n=2)   #n is precision of accuracy (number of pla
 If you have a list of question ids on which you would like to evaluate your results, pass it as a list to below function
 By default it uses all the question ids in annotation file
 """
-vqaEval.evaluate() 
+
+# !!!SPECIFY quesIds!!!
+# utilise plutot le evaluate.py que j'avais fait pour le code tensorflow
+# quesIds = [list of the question ids for which you have an answer]
+vqaEval.evaluate(quesIds=quesIds) 
 
 # print accuracies
 print "\n"
@@ -66,19 +76,19 @@ if len(evals) > 0:
 
 	imgId = randomAnn[0]['image_id']
 	imgFilename = 'COCO_' + dataSubType + '_'+ str(imgId).zfill(12) + '.jpg'
-	if os.path.isfile(imgDir + imgFilename):
-		I = io.imread(imgDir + imgFilename)
-		plt.imshow(I)
-		plt.axis('off')
-		plt.show()
+	# if os.path.isfile(imgDir + imgFilename):
+	# 	I = io.imread(imgDir + imgFilename)
+	# 	plt.imshow(I)
+	# 	plt.axis('off')
+	# 	plt.show()
 
 # plot accuracy for various question types
-plt.bar(range(len(vqaEval.accuracy['perQuestionType'])), vqaEval.accuracy['perQuestionType'].values(), align='center')
-plt.xticks(range(len(vqaEval.accuracy['perQuestionType'])), vqaEval.accuracy['perQuestionType'].keys(), rotation='0',fontsize=10)
-plt.title('Per Question Type Accuracy', fontsize=10)
-plt.xlabel('Question Types', fontsize=10)
-plt.ylabel('Accuracy', fontsize=10)
-plt.show()
+# plt.bar(range(len(vqaEval.accuracy['perQuestionType'])), vqaEval.accuracy['perQuestionType'].values(), align='center')
+# plt.xticks(range(len(vqaEval.accuracy['perQuestionType'])), vqaEval.accuracy['perQuestionType'].keys(), rotation='0',fontsize=10)
+# plt.title('Per Question Type Accuracy', fontsize=10)
+# plt.xlabel('Question Types', fontsize=10)
+# plt.ylabel('Accuracy', fontsize=10)
+# plt.show()
 
 # save evaluation results to ./Results folder
 json.dump(vqaEval.accuracy,     open(accuracyFile,     'w'))

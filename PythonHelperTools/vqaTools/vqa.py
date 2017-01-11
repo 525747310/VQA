@@ -34,18 +34,18 @@ class VQA:
 		self.qqa = {}
 		self.imgToQA = {}
 		if not annotation_file == None and not question_file == None:
-			print 'loading VQA annotations and questions into memory...'
+			#print 'loading VQA annotations and questions into memory...'
 			time_t = datetime.datetime.utcnow()
 			dataset = json.load(open(annotation_file, 'r'))
 			questions = json.load(open(question_file, 'r'))
-			print datetime.datetime.utcnow() - time_t
+			#print datetime.datetime.utcnow() - time_t
 			self.dataset = dataset
 			self.questions = questions
 			self.createIndex()
 
 	def createIndex(self):
         # create index
-		print 'creating index...'
+		# print 'creating index...'
  		imgToQA = {ann['image_id']: [] for ann in self.dataset['annotations']}
 		qa =  {ann['question_id']:       [] for ann in self.dataset['annotations']}
 		qqa = {ann['question_id']:       [] for ann in self.dataset['annotations']}
@@ -54,7 +54,7 @@ class VQA:
 			qa[ann['question_id']] = ann
 		for ques in self.questions['questions']:
   			qqa[ques['question_id']] = ques
-		print 'index created!'
+		# print 'index created!'
 
  		# create class members
  		self.qa = qa
@@ -66,8 +66,9 @@ class VQA:
 		Print information about the VQA annotation file.
 		:return:
 		"""
-		for key, value in self.datset['info'].items():
-			print '%s: %s'%(key, value)
+		useless=True
+		# for key, value in self.datset['info'].items():
+		# 	print '%s: %s'%(key, value)
 
 	def getQuesIds(self, imgIds=[], quesTypes=[], ansTypes=[]):
 		"""
@@ -156,13 +157,13 @@ class VQA:
 		res.dataset['data_subtype'] = copy.deepcopy(self.questions['data_subtype'])
 		res.dataset['license'] = copy.deepcopy(self.questions['license'])
 
-		print 'Loading and preparing results...     '
+		#print 'Loading and preparing results...     '
 		time_t = datetime.datetime.utcnow()
 		anns    = json.load(open(resFile))
 		assert type(anns) == list, 'results is not an array of objects'
 		annsQuesIds = [ann['question_id'] for ann in anns]
-		assert set(annsQuesIds) == set(self.getQuesIds()), \
-		'Results do not correspond to current VQA set. Either the results do not have predictions for all question ids in annotation file or there is atleast one question id that does not belong to the question ids in the annotation file.'
+		#assert set(annsQuesIds) == set(self.getQuesIds()), \
+		#'Results do not correspond to current VQA set. Either the results do not have predictions for all question ids in annotation file or there is atleast one question id that does not belong to the question ids in the annotation file.'
 		for ann in anns:
 			quesId 			     = ann['question_id']
 			if res.dataset['task_type'] == 'Multiple Choice':
@@ -171,7 +172,7 @@ class VQA:
 			ann['image_id']      = qaAnn['image_id'] 
 			ann['question_type'] = qaAnn['question_type']
 			ann['answer_type']   = qaAnn['answer_type']
-		print 'DONE (t=%0.2fs)'%((datetime.datetime.utcnow() - time_t).total_seconds())
+		#print 'DONE (t=%0.2fs)'%((datetime.datetime.utcnow() - time_t).total_seconds())
 
 		res.dataset['annotations'] = anns
 		res.createIndex()

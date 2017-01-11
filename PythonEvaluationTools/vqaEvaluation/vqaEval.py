@@ -66,6 +66,12 @@ class VQAEval:
 
 	
 	def evaluate(self, quesIds=None):
+		"""
+		quesIds: a list of question ids on which you want to compute the 
+		evaluation. Typically, if your predictions is not carried on the 
+		whole dataset, just pass the list of question ids for which you 
+		have an answer here.
+		"""
 		if quesIds == None:
 			quesIds = [quesId for quesId in self.params['question_id']]
 		gts = {}
@@ -80,7 +86,7 @@ class VQAEval:
 		accQA       = []
 		accQuesType = {}
 		accAnsType  = {}
-		print "computing accuracy"
+		#print "computing accuracy"
 		step = 0
 		for quesId in quesIds:
 			resAns      = res[quesId]['answer']
@@ -117,7 +123,7 @@ class VQAEval:
 			step = step + 1
 
 		self.setAccuracy(accQA, accQuesType, accAnsType)
-		print "Done computing accuracy"
+		#print "Done computing accuracy"
 	
 	def processPunctuation(self, inText):
 		outText = inText
@@ -180,6 +186,6 @@ class VQAEval:
 			status = "Done...\r\n"
 		block = int(round(barLength*progress))
 		text = "\rFinshed Percent: [{0}] {1}% {2}".format( "#"*block + "-"*(barLength-block), int(progress*100), status)
-		sys.stdout.write(text)
-		sys.stdout.flush()
+		# sys.stdout.write(text)
+		# sys.stdout.flush()
 
